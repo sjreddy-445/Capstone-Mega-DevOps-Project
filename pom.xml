@@ -11,10 +11,9 @@
 	<groupId>com.example</groupId>
 	<artifactId>bankapp</artifactId>
 	<version>0.0.1</version>
-	<name>bankapp</name>
-	    <description>Banking Web Application</description>
-	<url/>
-	       
+	      <name>bankapp</name>
+	      <description>Banking Web Application</description>
+	<url/> 
 	<licenses>
 		<license/>
 	</licenses>
