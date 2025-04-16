@@ -1,12 +1,12 @@
 services:
   mysql:
-    image: mysql:8
+    image: mysql:latest
     container_name: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=Test@123
       - MYSQL_DATABASE=BankDB
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      - bankapp-volume:/var/lib/mysql
     networks:
       - bankapp
     healthcheck:
@@ -16,15 +16,13 @@ services:
       retries: 3
       start_period: 30s
 
-  springboot-app:
-    build: 
-      context: .
-      network: host
-    container_name: bankapp
+  mainapp:
+    image: ${DUSER}/${IMAGE}
+    container_name: Bankapp
     environment:
       - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/BankDB?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_PASSWORD=Test@123
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bankappdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     ports:
       - "8080:8080"
     depends_on:
@@ -42,3 +40,6 @@ services:
 
 networks:
   bankapp:
+
+volumes:
+    bankapp-volume:
