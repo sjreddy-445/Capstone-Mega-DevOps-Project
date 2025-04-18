@@ -78,5 +78,68 @@ pipeline {
                 }
             }
         }
+        stage('Update manifests file in CD repo') {
+            steps {
+                script{
+                    cleanWs()
+                    sh '''
+                    git clone https://github.com/praduman8435/Capstone-Mega-CD-Pipeline.git
+                    cd Capstone-Mega-CD-Pipeline
+                    sed -i "s|thepraduman/bankapp:.*|thepraduman/bankapp:${IMAGE_TAG}|" kubernetes/Manifest.yaml
+
+                    echo "image tag updated"
+                    cat kubernetes/Manifest.yaml
+
+                    # commit and push the changes
+                    git config user.name "Praduman"
+                    git config user.email "praduman.cnd@gmail.com"
+                    git add kubernetes/Manifest.yaml
+                    git commit -m "image tag updated to ${IMAGE_TAG}"
+                    '''
+
+                    withCredentials([usernamePassword(credentialsId: 'github-cred', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    sh '''
+                    cd Capstone-Mega-CD-Pipeline
+                    git remote set-url origin https://$GIT_USER:$GIT_PASS@github.com/praduman8435/Capstone-Mega-CD-Pipeline.git
+                    git push origin main
+                    '''
+                    }
+                }
+            }
+        }
     }
+    post {
+    always {
+        script {
+            def jobName = env.JOB_NAME
+            def buildNumber = env.BUILD_NUMBER
+            def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+            def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+
+            def body = """
+                <html>
+                    <body>
+                        <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                            <h2>${jobName} - Build #${buildNumber}</h2>
+                            <div style="background-color: ${bannerColor}; padding: 10px;">
+                                <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                            </div>
+                            <p>Check the <a href="${env.BUILD_URL}">Console Output</a> for more details.</p>
+                        </div>
+                    </body>
+                </html>
+            """
+
+            emailext(
+                subject: "${jobName} - Build #${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                body: body,
+                to: 'praduman.cnd@gmail.com',
+                from: 'praduman.8435@gmail.com',
+                replyTo: 'praduman.8435@gmail.com',
+                mimeType: 'text/html',
+                attachmentsPattern: 'fs-report.html'
+            )
+        }
+    }
+}
 }
