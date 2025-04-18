@@ -7,7 +7,7 @@ This project showcases a **complete, production-grade DevSecOps pipeline** to de
 
 > Designed as a real-world capstone project, this serves as a blueprint for setting up advanced DevOps workflows with automation, security, and observability built-in.
 
-![](architecture-diagram.png)
+![](capstone_final.jpg)
 
 ## 🏗️ Key Highlights
 - ✅ **Hosted on AWS** with scalable infrastructure
